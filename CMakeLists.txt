@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(OUTPUT_FOLDER "example_driver")
 
 # Driver shared library - output as driver.dll / libdriver.so
-add_library(example_driver SHARED src/example_driver.cpp src/ox_driver.h)
+add_library(example_driver SHARED example_driver.cpp ox_driver.h)
 
 # Rename to standardized driver library name
 set_target_properties(example_driver PROPERTIES

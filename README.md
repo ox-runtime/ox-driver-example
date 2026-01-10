@@ -13,7 +13,7 @@ This driver provides a simple fixed-pose headset that:
 ## Building
 
 1. Clone this repository using `git clone https://github.com/cmdr2/ox-driver-example`
-2. Download [ox_driver.h](https://github.com/cmdr2/ox/releases/latest/download/driver.h) and place it inside the `src` folder.
+2. Download [ox_driver.h](https://github.com/cmdr2/ox/releases/latest/download/driver.h) and place it inside this folder.
 3. Compile using `cmake`:
 
 ```bash
