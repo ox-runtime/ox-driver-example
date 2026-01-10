@@ -1,6 +1,6 @@
 # ox-driver-example
 
-An example implementation of an ox runtime headset driver. You can use it as a starting template for writing a driver for your headset.
+An example implementation of an [ox runtime](https://github.com/cmdr2/ox) OpenXR headset driver. You can use it as a starting template for writing a driver for your headset.
 
 ## Purpose
 
