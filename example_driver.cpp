@@ -108,9 +108,9 @@ static void example_update_controller_state(int64_t predicted_time, uint32_t con
 }
 
 static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t max_profiles) {
-    // We pretend to be KHR simple_controller
+    // We pretend to be Oculus Touch controller
     static const char* supported_profiles[] = {
-        "/interaction_profiles/khr/simple_controller",
+        "/interaction_profiles/oculus/touch_controller",
     };
 
     uint32_t count = sizeof(supported_profiles) / sizeof(supported_profiles[0]);
@@ -121,6 +121,80 @@ static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t
     }
 
     return count;
+}
+
+static OxComponentResult example_get_input_component_state(int64_t predicted_time, uint32_t controller_index,
+                                                           const char* component_path,
+                                                           OxInputComponentState* out_state) {
+    if (!component_path || !out_state) {
+        return OX_COMPONENT_UNAVAILABLE;
+    }
+
+    // Extract the component part from full path (e.g., "/user/hand/left/input/trigger/value" -> "/input/trigger/value")
+    const char* input_pos = std::strstr(component_path, "/input/");
+    if (!input_pos) {
+        // If no /input/ in path, try to use the full path as-is for backwards compatibility
+        input_pos = component_path;
+    }
+
+    // Parse the component path and return dummy values
+    // For testing, we'll return some example states
+
+    // Trigger
+    if (std::strcmp(input_pos, "/input/trigger/value") == 0) {
+        out_state->float_value = 0.5f;  // Half-pressed
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Squeeze/Grip
+    if (std::strcmp(input_pos, "/input/squeeze/value") == 0) {
+        out_state->float_value = 0.3f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Thumbstick
+    if (std::strcmp(input_pos, "/input/thumbstick") == 0) {
+        out_state->x = 0.0f;
+        out_state->y = 0.0f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    if (std::strcmp(input_pos, "/input/thumbstick/x") == 0) {
+        out_state->float_value = 0.0f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    if (std::strcmp(input_pos, "/input/thumbstick/y") == 0) {
+        out_state->float_value = 0.0f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Button A (right hand) / X (left hand) - Click
+    if (std::strcmp(input_pos, "/input/a/click") == 0 || std::strcmp(input_pos, "/input/x/click") == 0) {
+        out_state->boolean_value = 0;  // Not pressed
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Button B (right hand) / Y (left hand) - Click
+    if (std::strcmp(input_pos, "/input/b/click") == 0 || std::strcmp(input_pos, "/input/y/click") == 0) {
+        out_state->boolean_value = 1;  // Pressed (for testing)
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Button A/X Touch
+    if (std::strcmp(input_pos, "/input/a/touch") == 0 || std::strcmp(input_pos, "/input/x/touch") == 0) {
+        out_state->boolean_value = 0;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Button B/Y Touch
+    if (std::strcmp(input_pos, "/input/b/touch") == 0 || std::strcmp(input_pos, "/input/y/touch") == 0) {
+        out_state->boolean_value = 1;  // Touched (for testing)
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Component not supported
+    return OX_COMPONENT_UNAVAILABLE;
 }
 
 // Driver registration function - this is the entry point called by the runtime
@@ -139,6 +213,7 @@ extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriverCallbacks* callbacks)
     callbacks->update_pose = example_update_pose;
     callbacks->update_view_pose = example_update_view_pose;
     callbacks->update_controller_state = example_update_controller_state;
+    callbacks->get_input_component_state = example_get_input_component_state;
     callbacks->get_interaction_profiles = example_get_interaction_profiles;
 
     return 1;
