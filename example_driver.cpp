@@ -82,6 +82,47 @@ static void example_update_view_pose(int64_t predicted_time, uint32_t eye_index,
     }
 }
 
+static void example_update_controller_state(int64_t predicted_time, uint32_t controller_index,
+                                            OxControllerState* out_state) {
+    // Static controller positions for example
+    out_state->is_active = 1;  // Controllers are always active in this example
+
+    // Position controllers at typical locations relative to user
+    if (controller_index == OX_CONTROLLER_LEFT) {
+        // Left controller: to the left and slightly forward
+        out_state->pose.position.x = -0.3f;  // 30cm left
+        out_state->pose.position.y = 1.2f;   // Waist height
+        out_state->pose.position.z = -0.2f;  // 20cm forward
+    } else {
+        // Right controller: to the right and slightly forward
+        out_state->pose.position.x = 0.3f;   // 30cm right
+        out_state->pose.position.y = 1.2f;   // Waist height
+        out_state->pose.position.z = -0.2f;  // 20cm forward
+    }
+
+    // Identity orientation (no rotation)
+    out_state->pose.orientation.x = 0.0f;
+    out_state->pose.orientation.y = 0.0f;
+    out_state->pose.orientation.z = 0.0f;
+    out_state->pose.orientation.w = 1.0f;
+}
+
+static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t max_profiles) {
+    // We pretend to be KHR simple_controller
+    static const char* supported_profiles[] = {
+        "/interaction_profiles/khr/simple_controller",
+    };
+
+    uint32_t count = sizeof(supported_profiles) / sizeof(supported_profiles[0]);
+
+    // Fill in the provided array
+    for (uint32_t i = 0; i < count && i < max_profiles; i++) {
+        profiles[i] = supported_profiles[i];
+    }
+
+    return count;
+}
+
 // Driver registration function - this is the entry point called by the runtime
 extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriverCallbacks* callbacks) {
     if (!callbacks) {
@@ -97,6 +138,8 @@ extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriverCallbacks* callbacks)
     callbacks->get_tracking_capabilities = example_get_tracking_capabilities;
     callbacks->update_pose = example_update_pose;
     callbacks->update_view_pose = example_update_view_pose;
+    callbacks->update_controller_state = example_update_controller_state;
+    callbacks->get_interaction_profiles = example_get_interaction_profiles;
 
     return 1;
 }
