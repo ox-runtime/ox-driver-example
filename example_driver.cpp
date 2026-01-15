@@ -148,7 +148,7 @@ static OxComponentResult example_get_input_component_state(int64_t predicted_tim
 
     // Squeeze/Grip
     if (std::strcmp(input_pos, "/input/squeeze/value") == 0) {
-        out_state->float_value = 0.3f;
+        out_state->float_value = 0.4f;
         return OX_COMPONENT_AVAILABLE;
     }
 
@@ -171,25 +171,29 @@ static OxComponentResult example_get_input_component_state(int64_t predicted_tim
 
     // Button A (right hand) / X (left hand) - Click
     if (std::strcmp(input_pos, "/input/a/click") == 0 || std::strcmp(input_pos, "/input/x/click") == 0) {
-        out_state->boolean_value = 0;  // Not pressed
+        out_state->boolean_value = 0;   // Not pressed
+        out_state->float_value = 0.0f;  // Also set float for apps that use FLOAT actions
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button B (right hand) / Y (left hand) - Click
     if (std::strcmp(input_pos, "/input/b/click") == 0 || std::strcmp(input_pos, "/input/y/click") == 0) {
-        out_state->boolean_value = 1;  // Pressed (for testing)
+        out_state->boolean_value = 1;   // Pressed (for testing)
+        out_state->float_value = 1.0f;  // Also set float for apps that use FLOAT actions
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button A/X Touch
     if (std::strcmp(input_pos, "/input/a/touch") == 0 || std::strcmp(input_pos, "/input/x/touch") == 0) {
         out_state->boolean_value = 0;
+        out_state->float_value = 0.0f;  // Also set float for apps that use FLOAT actions
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button B/Y Touch
     if (std::strcmp(input_pos, "/input/b/touch") == 0 || std::strcmp(input_pos, "/input/y/touch") == 0) {
-        out_state->boolean_value = 1;  // Touched (for testing)
+        out_state->boolean_value = 1;   // Touched (for testing)
+        out_state->float_value = 1.0f;  // Also set float for apps that use FLOAT actions
         return OX_COMPONENT_AVAILABLE;
     }
 
