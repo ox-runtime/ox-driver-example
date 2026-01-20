@@ -1,6 +1,6 @@
 # ox-driver-example
 
-An example implementation of an [ox runtime](https://github.com/ox-runtime/ox) OpenXR headset driver. You can use it as a starting template for writing a driver for your headset.
+An example implementation of an [ox runtime](https://github.com/freebirdxr/ox) OpenXR headset driver. You can use it as a starting template for writing a driver for your headset.
 
 ## Purpose
 
@@ -12,8 +12,8 @@ This driver provides a simple fixed-pose headset that:
 
 ## Building
 
-1. Clone this repository using `git clone https://github.com/ox-runtime/ox-driver-example`
-2. Download [ox_driver.h](https://github.com/ox-runtime/ox/releases/latest/download/driver.h) and place it inside this folder.
+1. Clone this repository using `git clone https://github.com/freebirdxr/ox-driver-example`
+2. Download [ox_driver.h](https://github.com/freebirdxr/ox/releases/latest/download/driver.h) and place it inside this folder.
 3. Compile using `cmake`:
 
 ```bash
