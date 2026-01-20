@@ -53,22 +53,16 @@ static void example_get_tracking_capabilities(OxTrackingCapabilities* caps) {
     caps->has_position_tracking = 1;
 }
 
-static void example_update_pose(int64_t predicted_time, OxPose* out_pose) {
-    // Fixed pose: standing at origin, looking forward
+static void example_update_view_pose(int64_t predicted_time, uint32_t eye_index, OxPose* out_pose) {
+    // Get HMD pose from device[0] (the approach drivers should use)
+    // For this simple example, we'll just use a fixed pose
     out_pose->position.x = 0.0f;
     out_pose->position.y = 1.6f;  // ~1.6m eye height
     out_pose->position.z = 0.0f;
-
-    // Identity quaternion (no rotation)
     out_pose->orientation.x = 0.0f;
     out_pose->orientation.y = 0.0f;
     out_pose->orientation.z = 0.0f;
     out_pose->orientation.w = 1.0f;
-}
-
-static void example_update_view_pose(int64_t predicted_time, uint32_t eye_index, OxPose* out_pose) {
-    // Start with HMD pose
-    example_update_pose(predicted_time, out_pose);
 
     // Apply IPD offset (64mm standard)
     const float ipd_half = 0.032f;  // 32mm per eye
@@ -83,32 +77,44 @@ static void example_update_view_pose(int64_t predicted_time, uint32_t eye_index,
 }
 
 static void example_update_devices(int64_t predicted_time, OxDeviceState* out_states, uint32_t* out_count) {
-    // Report two controllers: left and right
-    *out_count = 2;
+    // Report HMD + two controllers
+    *out_count = 3;
 
-    // Left controller
-    std::strncpy(out_states[0].user_path, "/user/hand/left", sizeof(out_states[0].user_path) - 1);
+    // HMD as device[0] - /user/head
+    std::strncpy(out_states[0].user_path, "/user/head", sizeof(out_states[0].user_path) - 1);
     out_states[0].user_path[sizeof(out_states[0].user_path) - 1] = '\0';
-    out_states[0].is_active = 1;
-    out_states[0].pose.position.x = -0.3f;  // 30cm left
-    out_states[0].pose.position.y = 1.2f;   // Waist height
-    out_states[0].pose.position.z = -0.2f;  // 20cm forward
+    out_states[0].is_active = 1;  // HMD is always active
+    out_states[0].pose.position.x = 0.0f;
+    out_states[0].pose.position.y = 1.6f;  // Eye height
+    out_states[0].pose.position.z = 0.0f;
     out_states[0].pose.orientation.x = 0.0f;
     out_states[0].pose.orientation.y = 0.0f;
     out_states[0].pose.orientation.z = 0.0f;
     out_states[0].pose.orientation.w = 1.0f;
 
-    // Right controller
-    std::strncpy(out_states[1].user_path, "/user/hand/right", sizeof(out_states[1].user_path) - 1);
+    // Left controller as device[1]
+    std::strncpy(out_states[1].user_path, "/user/hand/left", sizeof(out_states[1].user_path) - 1);
     out_states[1].user_path[sizeof(out_states[1].user_path) - 1] = '\0';
     out_states[1].is_active = 1;
-    out_states[1].pose.position.x = 0.3f;   // 30cm right
+    out_states[1].pose.position.x = -0.3f;  // 30cm left
     out_states[1].pose.position.y = 1.2f;   // Waist height
     out_states[1].pose.position.z = -0.2f;  // 20cm forward
     out_states[1].pose.orientation.x = 0.0f;
     out_states[1].pose.orientation.y = 0.0f;
     out_states[1].pose.orientation.z = 0.0f;
     out_states[1].pose.orientation.w = 1.0f;
+
+    // Right controller as device[2]
+    std::strncpy(out_states[2].user_path, "/user/hand/right", sizeof(out_states[2].user_path) - 1);
+    out_states[2].user_path[sizeof(out_states[2].user_path) - 1] = '\0';
+    out_states[2].is_active = 1;
+    out_states[2].pose.position.x = 0.3f;   // 30cm right
+    out_states[2].pose.position.y = 1.2f;   // Waist height
+    out_states[2].pose.position.z = -0.2f;  // 20cm forward
+    out_states[2].pose.orientation.x = 0.0f;
+    out_states[2].pose.orientation.y = 0.0f;
+    out_states[2].pose.orientation.z = 0.0f;
+    out_states[2].pose.orientation.w = 1.0f;
 }
 
 static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t max_profiles) {
@@ -212,7 +218,6 @@ extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriverCallbacks* callbacks)
     callbacks->get_device_info = example_get_device_info;
     callbacks->get_display_properties = example_get_display_properties;
     callbacks->get_tracking_capabilities = example_get_tracking_capabilities;
-    callbacks->update_pose = example_update_pose;
     callbacks->update_view_pose = example_update_view_pose;
     callbacks->update_devices = example_update_devices;
     callbacks->get_input_component_state = example_get_input_component_state;
