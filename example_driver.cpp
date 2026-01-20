@@ -82,29 +82,33 @@ static void example_update_view_pose(int64_t predicted_time, uint32_t eye_index,
     }
 }
 
-static void example_update_controller_state(int64_t predicted_time, uint32_t controller_index,
-                                            OxControllerState* out_state) {
-    // Static controller positions for example
-    out_state->is_active = 1;  // Controllers are always active in this example
+static void example_update_devices(int64_t predicted_time, OxDeviceState* out_states, uint32_t* out_count) {
+    // Report two controllers: left and right
+    *out_count = 2;
 
-    // Position controllers at typical locations relative to user
-    if (controller_index == OX_CONTROLLER_LEFT) {
-        // Left controller: to the left and slightly forward
-        out_state->pose.position.x = -0.3f;  // 30cm left
-        out_state->pose.position.y = 1.2f;   // Waist height
-        out_state->pose.position.z = -0.2f;  // 20cm forward
-    } else {
-        // Right controller: to the right and slightly forward
-        out_state->pose.position.x = 0.3f;   // 30cm right
-        out_state->pose.position.y = 1.2f;   // Waist height
-        out_state->pose.position.z = -0.2f;  // 20cm forward
-    }
+    // Left controller
+    std::strncpy(out_states[0].user_path, "/user/hand/left", sizeof(out_states[0].user_path) - 1);
+    out_states[0].user_path[sizeof(out_states[0].user_path) - 1] = '\0';
+    out_states[0].is_active = 1;
+    out_states[0].pose.position.x = -0.3f;  // 30cm left
+    out_states[0].pose.position.y = 1.2f;   // Waist height
+    out_states[0].pose.position.z = -0.2f;  // 20cm forward
+    out_states[0].pose.orientation.x = 0.0f;
+    out_states[0].pose.orientation.y = 0.0f;
+    out_states[0].pose.orientation.z = 0.0f;
+    out_states[0].pose.orientation.w = 1.0f;
 
-    // Identity orientation (no rotation)
-    out_state->pose.orientation.x = 0.0f;
-    out_state->pose.orientation.y = 0.0f;
-    out_state->pose.orientation.z = 0.0f;
-    out_state->pose.orientation.w = 1.0f;
+    // Right controller
+    std::strncpy(out_states[1].user_path, "/user/hand/right", sizeof(out_states[1].user_path) - 1);
+    out_states[1].user_path[sizeof(out_states[1].user_path) - 1] = '\0';
+    out_states[1].is_active = 1;
+    out_states[1].pose.position.x = 0.3f;   // 30cm right
+    out_states[1].pose.position.y = 1.2f;   // Waist height
+    out_states[1].pose.position.z = -0.2f;  // 20cm forward
+    out_states[1].pose.orientation.x = 0.0f;
+    out_states[1].pose.orientation.y = 0.0f;
+    out_states[1].pose.orientation.z = 0.0f;
+    out_states[1].pose.orientation.w = 1.0f;
 }
 
 static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t max_profiles) {
@@ -123,75 +127,69 @@ static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t
     return count;
 }
 
-static OxComponentResult example_get_input_component_state(int64_t predicted_time, uint32_t controller_index,
+static OxComponentResult example_get_input_component_state(int64_t predicted_time, const char* user_path,
                                                            const char* component_path,
                                                            OxInputComponentState* out_state) {
-    if (!component_path || !out_state) {
+    if (!user_path || !component_path || !out_state) {
         return OX_COMPONENT_UNAVAILABLE;
     }
 
-    // Extract the component part from full path (e.g., "/user/hand/left/input/trigger/value" -> "/input/trigger/value")
-    const char* input_pos = std::strstr(component_path, "/input/");
-    if (!input_pos) {
-        // If no /input/ in path, try to use the full path as-is for backwards compatibility
-        input_pos = component_path;
-    }
-
+    // component_path is now correctly passed as "/input/trigger/value" etc.
     // Parse the component path and return dummy values
     // For testing, we'll return some example states
 
     // Trigger
-    if (std::strcmp(input_pos, "/input/trigger/value") == 0) {
+    if (std::strcmp(component_path, "/input/trigger/value") == 0) {
         out_state->float_value = 0.5f;  // Half-pressed
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Squeeze/Grip
-    if (std::strcmp(input_pos, "/input/squeeze/value") == 0) {
+    if (std::strcmp(component_path, "/input/squeeze/value") == 0) {
         out_state->float_value = 0.4f;
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Thumbstick
-    if (std::strcmp(input_pos, "/input/thumbstick") == 0) {
+    if (std::strcmp(component_path, "/input/thumbstick") == 0) {
         out_state->x = 0.0f;
         out_state->y = 0.0f;
         return OX_COMPONENT_AVAILABLE;
     }
 
-    if (std::strcmp(input_pos, "/input/thumbstick/x") == 0) {
+    if (std::strcmp(component_path, "/input/thumbstick/x") == 0) {
         out_state->float_value = 0.0f;
         return OX_COMPONENT_AVAILABLE;
     }
 
-    if (std::strcmp(input_pos, "/input/thumbstick/y") == 0) {
+    if (std::strcmp(component_path, "/input/thumbstick/y") == 0) {
         out_state->float_value = 0.0f;
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button A (right hand) / X (left hand) - Click
-    if (std::strcmp(input_pos, "/input/a/click") == 0 || std::strcmp(input_pos, "/input/x/click") == 0) {
+    if (std::strcmp(component_path, "/input/a/click") == 0 || std::strcmp(component_path, "/input/x/click") == 0) {
         out_state->boolean_value = 0;   // Not pressed
         out_state->float_value = 0.0f;  // Also set float for apps that use FLOAT actions
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button B (right hand) / Y (left hand) - Click
-    if (std::strcmp(input_pos, "/input/b/click") == 0 || std::strcmp(input_pos, "/input/y/click") == 0) {
+    if (std::strcmp(component_path, "/input/b/click") == 0 || std::strcmp(component_path, "/input/y/click") == 0) {
         out_state->boolean_value = 1;   // Pressed (for testing)
         out_state->float_value = 1.0f;  // Also set float for apps that use FLOAT actions
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button A/X Touch
-    if (std::strcmp(input_pos, "/input/a/touch") == 0 || std::strcmp(input_pos, "/input/x/touch") == 0) {
+    if (std::strcmp(component_path, "/input/a/touch") == 0 || std::strcmp(component_path, "/input/x/touch") == 0) {
         out_state->boolean_value = 0;
         out_state->float_value = 0.0f;  // Also set float for apps that use FLOAT actions
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button B/Y Touch
-    if (std::strcmp(input_pos, "/input/b/touch") == 0 || std::strcmp(input_pos, "/input/y/touch") == 0) {
+    if (std::strcmp(component_path, "/input/b/touch") == 0 || std::strcmp(component_path, "/input/y/touch") == 0) {
         out_state->boolean_value = 1;   // Touched (for testing)
         out_state->float_value = 1.0f;  // Also set float for apps that use FLOAT actions
         return OX_COMPONENT_AVAILABLE;
@@ -216,7 +214,7 @@ extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriverCallbacks* callbacks)
     callbacks->get_tracking_capabilities = example_get_tracking_capabilities;
     callbacks->update_pose = example_update_pose;
     callbacks->update_view_pose = example_update_view_pose;
-    callbacks->update_controller_state = example_update_controller_state;
+    callbacks->update_devices = example_update_devices;
     callbacks->get_input_component_state = example_get_input_component_state;
     callbacks->get_interaction_profiles = example_get_interaction_profiles;
 
