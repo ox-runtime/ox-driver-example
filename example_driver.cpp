@@ -133,75 +133,116 @@ static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t
     return count;
 }
 
-static OxComponentResult example_get_input_component_state(int64_t predicted_time, const char* user_path,
-                                                           const char* component_path,
-                                                           OxInputComponentState* out_state) {
-    if (!user_path || !component_path || !out_state) {
+static OxComponentResult example_get_input_state_boolean(int64_t predicted_time, const char* user_path,
+                                                         const char* component_path, uint32_t* out_value) {
+    if (!user_path || !component_path || !out_value) {
         return OX_COMPONENT_UNAVAILABLE;
-    }
-
-    // component_path is now correctly passed as "/input/trigger/value" etc.
-    // Parse the component path and return dummy values
-    // For testing, we'll return some example states
-
-    // Trigger
-    if (std::strcmp(component_path, "/input/trigger/value") == 0) {
-        out_state->float_value = 0.5f;  // Half-pressed
-        return OX_COMPONENT_AVAILABLE;
-    }
-
-    // Squeeze/Grip
-    if (std::strcmp(component_path, "/input/squeeze/value") == 0) {
-        out_state->float_value = 0.4f;
-        return OX_COMPONENT_AVAILABLE;
-    }
-
-    // Thumbstick
-    if (std::strcmp(component_path, "/input/thumbstick") == 0) {
-        out_state->x = 0.0f;
-        out_state->y = 0.0f;
-        return OX_COMPONENT_AVAILABLE;
-    }
-
-    if (std::strcmp(component_path, "/input/thumbstick/x") == 0) {
-        out_state->float_value = 0.0f;
-        return OX_COMPONENT_AVAILABLE;
-    }
-
-    if (std::strcmp(component_path, "/input/thumbstick/y") == 0) {
-        out_state->float_value = 0.0f;
-        return OX_COMPONENT_AVAILABLE;
     }
 
     // Button A (right hand) / X (left hand) - Click
     if (std::strcmp(component_path, "/input/a/click") == 0 || std::strcmp(component_path, "/input/x/click") == 0) {
-        out_state->boolean_value = 0;   // Not pressed
-        out_state->float_value = 0.0f;  // Also set float for apps that use FLOAT actions
+        *out_value = 0;  // Not pressed
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button B (right hand) / Y (left hand) - Click
     if (std::strcmp(component_path, "/input/b/click") == 0 || std::strcmp(component_path, "/input/y/click") == 0) {
-        out_state->boolean_value = 1;   // Pressed (for testing)
-        out_state->float_value = 1.0f;  // Also set float for apps that use FLOAT actions
+        *out_value = 1;  // Pressed (for testing)
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button A/X Touch
     if (std::strcmp(component_path, "/input/a/touch") == 0 || std::strcmp(component_path, "/input/x/touch") == 0) {
-        out_state->boolean_value = 0;
-        out_state->float_value = 0.0f;  // Also set float for apps that use FLOAT actions
+        *out_value = 0;
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Button B/Y Touch
     if (std::strcmp(component_path, "/input/b/touch") == 0 || std::strcmp(component_path, "/input/y/touch") == 0) {
-        out_state->boolean_value = 1;   // Touched (for testing)
-        out_state->float_value = 1.0f;  // Also set float for apps that use FLOAT actions
+        *out_value = 1;  // Touched (for testing)
         return OX_COMPONENT_AVAILABLE;
     }
 
-    // Component not supported
+    // Trigger click
+    if (std::strcmp(component_path, "/input/trigger/click") == 0) {
+        *out_value = 0;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Trigger touch
+    if (std::strcmp(component_path, "/input/trigger/touch") == 0) {
+        *out_value = 0;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Thumbstick click
+    if (std::strcmp(component_path, "/input/thumbstick/click") == 0) {
+        *out_value = 0;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Thumbstick touch
+    if (std::strcmp(component_path, "/input/thumbstick/touch") == 0) {
+        *out_value = 0;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    return OX_COMPONENT_UNAVAILABLE;
+}
+
+static OxComponentResult example_get_input_state_float(int64_t predicted_time, const char* user_path,
+                                                       const char* component_path, float* out_value) {
+    if (!user_path || !component_path || !out_value) {
+        return OX_COMPONENT_UNAVAILABLE;
+    }
+
+    // Trigger value
+    if (std::strcmp(component_path, "/input/trigger/value") == 0) {
+        *out_value = 0.5f;  // Half-pressed
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Squeeze/Grip value
+    if (std::strcmp(component_path, "/input/squeeze/value") == 0) {
+        *out_value = 0.4f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Thumbstick x component
+    if (std::strcmp(component_path, "/input/thumbstick/x") == 0) {
+        *out_value = 0.0f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Thumbstick y component
+    if (std::strcmp(component_path, "/input/thumbstick/y") == 0) {
+        *out_value = 0.0f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    return OX_COMPONENT_UNAVAILABLE;
+}
+
+static OxComponentResult example_get_input_state_vector2f(int64_t predicted_time, const char* user_path,
+                                                          const char* component_path, float* out_x, float* out_y) {
+    if (!user_path || !component_path || !out_x || !out_y) {
+        return OX_COMPONENT_UNAVAILABLE;
+    }
+
+    // Thumbstick
+    if (std::strcmp(component_path, "/input/thumbstick") == 0) {
+        *out_x = 0.0f;
+        *out_y = 0.0f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
+    // Trackpad
+    if (std::strcmp(component_path, "/input/trackpad") == 0) {
+        *out_x = 0.0f;
+        *out_y = 0.0f;
+        return OX_COMPONENT_AVAILABLE;
+    }
+
     return OX_COMPONENT_UNAVAILABLE;
 }
 
@@ -220,7 +261,9 @@ extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriverCallbacks* callbacks)
     callbacks->get_tracking_capabilities = example_get_tracking_capabilities;
     callbacks->update_view_pose = example_update_view_pose;
     callbacks->update_devices = example_update_devices;
-    callbacks->get_input_component_state = example_get_input_component_state;
+    callbacks->get_input_state_boolean = example_get_input_state_boolean;
+    callbacks->get_input_state_float = example_get_input_state_float;
+    callbacks->get_input_state_vector2f = example_get_input_state_vector2f;
     callbacks->get_interaction_profiles = example_get_interaction_profiles;
 
     return 1;
