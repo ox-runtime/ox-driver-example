@@ -224,22 +224,22 @@ static OxComponentResult example_get_input_state_float(int64_t predicted_time, c
 }
 
 static OxComponentResult example_get_input_state_vector2f(int64_t predicted_time, const char* user_path,
-                                                          const char* component_path, float* out_x, float* out_y) {
-    if (!user_path || !component_path || !out_x || !out_y) {
+                                                          const char* component_path, OxVector2f* out_value) {
+    if (!user_path || !component_path || !out_value) {
         return OX_COMPONENT_UNAVAILABLE;
     }
 
     // Thumbstick
     if (std::strcmp(component_path, "/input/thumbstick") == 0) {
-        *out_x = 0.0f;
-        *out_y = 0.0f;
+        out_value->x = 0.0f;
+        out_value->y = 0.0f;
         return OX_COMPONENT_AVAILABLE;
     }
 
     // Trackpad
     if (std::strcmp(component_path, "/input/trackpad") == 0) {
-        *out_x = 0.0f;
-        *out_y = 0.0f;
+        out_value->x = 0.0f;
+        out_value->y = 0.0f;
         return OX_COMPONENT_AVAILABLE;
     }
 
