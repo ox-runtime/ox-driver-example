@@ -1,5 +1,7 @@
 # ox-driver-example
 
+**WORK-IN-PROGRESS** - This is still a prototype and is not (yet) fully compliant with the OpenXR spec.
+
 An example implementation of an [ox runtime](https://github.com/ox-runtime/ox) OpenXR headset driver. You can use it as a starting template for writing a driver for your headset.
 
 ## Purpose
