@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download ox_driver.h
+      run: curl -L -o ox_driver.h https://github.com/ox-runtime/ox/releases/latest/download/ox_driver.h
+
+    - name: Build
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --config Release
+
+    - name: Create zip
+      id: create_zip
+      shell: bash
+      run: |
+        cd build
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          ZIP_FILE_NAME="ox-example-driver-win-x64.zip"
+          powershell "Compress-Archive -Path ox_simulator -DestinationPath $ZIP_FILE_NAME"
+        elif [ "$RUNNER_OS" == "macOS" ]; then
+          ZIP_FILE_NAME="ox-example-driver-macos-x64.zip"
+          zip -r $ZIP_FILE_NAME ox_simulator
+        else
+          ZIP_FILE_NAME="ox-example-driver-linux-x64.zip"
+          zip -r $ZIP_FILE_NAME ox_simulator
+        fi
+        echo "zip_file=$ZIP_FILE_NAME" >> $GITHUB_OUTPUT
+
+    - name: Upload release asset
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build/${{ steps.create_zip.outputs.zip_file }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
