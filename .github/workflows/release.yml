@@ -33,7 +33,7 @@ jobs:
           ZIP_FILE_NAME="ox-example-driver-win-x64.zip"
           powershell "Compress-Archive -Path ox_simulator -DestinationPath $ZIP_FILE_NAME"
         elif [ "$RUNNER_OS" == "macOS" ]; then
-          ZIP_FILE_NAME="ox-example-driver-macos-x64.zip"
+          ZIP_FILE_NAME="ox-example-driver-mac-x64.zip"
           zip -r $ZIP_FILE_NAME ox_simulator
         else
           ZIP_FILE_NAME="ox-example-driver-linux-x64.zip"
