@@ -34,8 +34,8 @@ For example:
 ```
 ox-runtime/
 ├── bin/
-│   ├── ox-service.exe (or ox-service on Linux)
+│   ├── ox-service.exe (or ox-service on Linux/Mac)
 │   └── drivers/
 │       └── example_driver/
-│           └── driver.dll (or libdriver.so)
+│           └── ox_driver.dll (or libox_driver.so / libox_driver.dylib)
 ```

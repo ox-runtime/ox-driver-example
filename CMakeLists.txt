@@ -6,12 +6,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(OUTPUT_FOLDER "example_driver")
 
-# Driver shared library - output as driver.dll / libdriver.so
+# Driver shared library - output as ox_driver.dll / libox_driver.so / libox_driver.dylib
 add_library(example_driver SHARED example_driver.cpp ox_driver.h)
 
 # Rename to standardized driver library name
 set_target_properties(example_driver PROPERTIES
-    OUTPUT_NAME "driver"
+    OUTPUT_NAME "ox_driver"
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${OUTPUT_FOLDER}
     RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/${OUTPUT_FOLDER}
     RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/${OUTPUT_FOLDER}
