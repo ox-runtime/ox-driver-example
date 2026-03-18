@@ -1,5 +1,6 @@
 // Simple (fixed-pose) example headset driver implementation
 
+#include <cstdio>
 #include <cstring>
 
 // Include the driver API
@@ -20,14 +21,11 @@ static int example_is_device_connected(void) {
 }
 
 static void example_get_device_info(OxDeviceInfo* info) {
-    std::strncpy(info->name, "example VR Headset", sizeof(info->name) - 1);
-    info->name[sizeof(info->name) - 1] = '\0';
+    snprintf(info->name, sizeof(info->name), "%s", "example VR Headset");
 
-    std::strncpy(info->manufacturer, "ox runtime", sizeof(info->manufacturer) - 1);
-    info->manufacturer[sizeof(info->manufacturer) - 1] = '\0';
+    snprintf(info->manufacturer, sizeof(info->manufacturer), "%s", "ox runtime");
 
-    std::strncpy(info->serial, "example-00000", sizeof(info->serial) - 1);
-    info->serial[sizeof(info->serial) - 1] = '\0';
+    snprintf(info->serial, sizeof(info->serial), "%s", "example-00000");
 
     info->vendor_id = 0x0000;
     info->product_id = 0x0001;
@@ -81,8 +79,7 @@ static void example_update_devices(int64_t predicted_time, OxDeviceState* out_st
     *out_count = 3;
 
     // HMD as device[0] - /user/head
-    std::strncpy(out_states[0].user_path, "/user/head", sizeof(out_states[0].user_path) - 1);
-    out_states[0].user_path[sizeof(out_states[0].user_path) - 1] = '\0';
+    snprintf(out_states[0].user_path, sizeof(out_states[0].user_path), "%s", "/user/head");
     out_states[0].is_active = 1;  // HMD is always active
     out_states[0].pose.position.x = 0.0f;
     out_states[0].pose.position.y = 1.6f;  // Eye height
@@ -93,8 +90,7 @@ static void example_update_devices(int64_t predicted_time, OxDeviceState* out_st
     out_states[0].pose.orientation.w = 1.0f;
 
     // Left controller as device[1]
-    std::strncpy(out_states[1].user_path, "/user/hand/left", sizeof(out_states[1].user_path) - 1);
-    out_states[1].user_path[sizeof(out_states[1].user_path) - 1] = '\0';
+    snprintf(out_states[1].user_path, sizeof(out_states[1].user_path), "%s", "/user/hand/left");
     out_states[1].is_active = 1;
     out_states[1].pose.position.x = -0.3f;  // 30cm left
     out_states[1].pose.position.y = 1.2f;   // Waist height
@@ -105,8 +101,7 @@ static void example_update_devices(int64_t predicted_time, OxDeviceState* out_st
     out_states[1].pose.orientation.w = 1.0f;
 
     // Right controller as device[2]
-    std::strncpy(out_states[2].user_path, "/user/hand/right", sizeof(out_states[2].user_path) - 1);
-    out_states[2].user_path[sizeof(out_states[2].user_path) - 1] = '\0';
+    snprintf(out_states[2].user_path, sizeof(out_states[2].user_path), "%s", "/user/hand/right");
     out_states[2].is_active = 1;
     out_states[2].pose.position.x = 0.3f;   // 30cm right
     out_states[2].pose.position.y = 1.2f;   // Waist height
