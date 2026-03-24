@@ -4,7 +4,7 @@
 #include <cstring>
 
 // Include the driver API
-#include "ox_driver.h"
+#include <ox_driver.h>
 
 static int example_initialize(void) {
     // No hardware to initialize for example
@@ -40,10 +40,10 @@ static void example_get_display_properties(OxDisplayProperties* props) {
     props->refresh_rate = 90.0f;
 
     // ~90 degree FOV
-    props->fov.angle_left = -0.785398f;  // -45 degrees in radians
-    props->fov.angle_right = 0.785398f;  // +45 degrees
-    props->fov.angle_up = 0.785398f;
-    props->fov.angle_down = -0.785398f;
+    props->fov.angleLeft = -0.785398f;  // -45 degrees in radians
+    props->fov.angleRight = 0.785398f;  // +45 degrees
+    props->fov.angleUp = 0.785398f;
+    props->fov.angleDown = -0.785398f;
 }
 
 static void example_get_tracking_capabilities(OxTrackingCapabilities* caps) {
@@ -51,7 +51,7 @@ static void example_get_tracking_capabilities(OxTrackingCapabilities* caps) {
     caps->has_position_tracking = 1;
 }
 
-static void example_update_view_pose(int64_t predicted_time, uint32_t eye_index, OxPose* out_pose) {
+static void example_update_view_pose(XrTime predicted_time, uint32_t eye_index, XrPosef* out_pose) {
     // Get HMD pose from device[0] (the approach drivers should use)
     // For this simple example, we'll just use a fixed pose
     out_pose->position.x = 0.0f;
@@ -74,7 +74,7 @@ static void example_update_view_pose(int64_t predicted_time, uint32_t eye_index,
     }
 }
 
-static void example_update_devices(int64_t predicted_time, OxDeviceState* out_states, uint32_t* out_count) {
+static void example_update_devices(XrTime predicted_time, OxDeviceState* out_states, uint32_t* out_count) {
     // Report HMD + two controllers
     *out_count = 3;
 
@@ -128,7 +128,7 @@ static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t
     return count;
 }
 
-static OxComponentResult example_get_input_state_boolean(int64_t predicted_time, const char* user_path,
+static OxComponentResult example_get_input_state_boolean(XrTime predicted_time, const char* user_path,
                                                          const char* component_path, uint32_t* out_value) {
     if (!user_path || !component_path || !out_value) {
         return OX_COMPONENT_UNAVAILABLE;
@@ -185,7 +185,7 @@ static OxComponentResult example_get_input_state_boolean(int64_t predicted_time,
     return OX_COMPONENT_UNAVAILABLE;
 }
 
-static OxComponentResult example_get_input_state_float(int64_t predicted_time, const char* user_path,
+static OxComponentResult example_get_input_state_float(XrTime predicted_time, const char* user_path,
                                                        const char* component_path, float* out_value) {
     if (!user_path || !component_path || !out_value) {
         return OX_COMPONENT_UNAVAILABLE;
@@ -218,8 +218,8 @@ static OxComponentResult example_get_input_state_float(int64_t predicted_time, c
     return OX_COMPONENT_UNAVAILABLE;
 }
 
-static OxComponentResult example_get_input_state_vector2f(int64_t predicted_time, const char* user_path,
-                                                          const char* component_path, OxVector2f* out_value) {
+static OxComponentResult example_get_input_state_vector2f(XrTime predicted_time, const char* user_path,
+                                                          const char* component_path, XrVector2f* out_value) {
     if (!user_path || !component_path || !out_value) {
         return OX_COMPONENT_UNAVAILABLE;
     }

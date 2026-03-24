@@ -6,31 +6,37 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 
-set(OX_DRIVER_HEADER_LOCAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ox_driver.h")
-if(EXISTS "${OX_DRIVER_HEADER_LOCAL_PATH}")
-    set(OX_DRIVER_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+set(OX_RUNTIME_REPO "" CACHE PATH "Local path to the ox-runtime repository for ox_driver_api; uses FetchContent when empty")
+
+if(OX_RUNTIME_REPO)
+    get_filename_component(OX_RUNTIME_SOURCE_DIR "${OX_RUNTIME_REPO}" ABSOLUTE BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+    if(NOT EXISTS "${OX_RUNTIME_SOURCE_DIR}/include/CMakeLists.txt")
+        message(FATAL_ERROR "OX_RUNTIME_REPO must point to the ox-runtime repository root: ${OX_RUNTIME_SOURCE_DIR}")
+    endif()
+    FetchContent_Declare(
+        ox_driver_api
+        SOURCE_DIR "${OX_RUNTIME_SOURCE_DIR}"
+        SOURCE_SUBDIR include
+    )
 else()
     FetchContent_Declare(
-        ox_driver_header
-        URL https://github.com/ox-runtime/ox-runtime/releases/latest/download/ox_driver.h
-        DOWNLOAD_NO_EXTRACT TRUE
-        DOWNLOAD_NAME ox_driver.h
+        ox_driver_api
+        GIT_REPOSITORY https://github.com/ox-runtime/ox-runtime.git
+        GIT_TAG v0.1.0
+        GIT_SHALLOW TRUE
+        GIT_SPARSE_CHECKOUT include
+        SOURCE_SUBDIR include
+        EXCLUDE_FROM_ALL
     )
-    FetchContent_GetProperties(ox_driver_header)
-    if(NOT ox_driver_header_POPULATED)
-        FetchContent_Populate(ox_driver_header)
-    endif()
-    set(OX_DRIVER_INCLUDE_DIR "${ox_driver_header_SOURCE_DIR}")
 endif()
+FetchContent_MakeAvailable(ox_driver_api)
 
 set(OUTPUT_FOLDER "example_driver")
 
 # Driver shared library - output as ox_driver.dll / libox_driver.so / libox_driver.dylib
 add_library(example_driver SHARED example_driver.cpp)
 
-target_include_directories(example_driver PRIVATE
-    ${OX_DRIVER_INCLUDE_DIR}
-)
+target_link_libraries(example_driver PRIVATE ox_driver_api)
 
 # Rename to standardized driver library name
 set_target_properties(example_driver PROPERTIES

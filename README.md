@@ -14,13 +14,12 @@ This driver provides a simple fixed-pose headset that:
 
 ## Building
 
-1. Clone this repository using `git clone https://github.com/ox-runtime/ox-driver-example`
-2. Compile using `cmake`:
-
 ```bash
 cmake -B build
 cmake --build build --config Release
 ```
+
+If you want to build against a local `ox-runtime` checkout instead of the remote repository, pass `-DOX_RUNTIME_REPO=/path/to/ox-runtime` when configuring cmake.
 
 3. Your driver will be built inside `build/example_driver`.
 
