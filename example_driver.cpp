@@ -20,58 +20,39 @@ static int example_is_device_connected(void) {
     return 1;
 }
 
-static void example_get_device_info(OxDeviceInfo* info) {
-    snprintf(info->name, sizeof(info->name), "%s", "example VR Headset");
-
-    snprintf(info->manufacturer, sizeof(info->manufacturer), "%s", "ox runtime");
-
-    snprintf(info->serial, sizeof(info->serial), "%s", "example-00000");
-
-    info->vendor_id = 0x0000;
-    info->product_id = 0x0001;
+static void example_get_system_properties(XrSystemProperties* props) {
+    std::snprintf(props->systemName, XR_MAX_SYSTEM_NAME_SIZE, "%s", "example VR Headset");
+    props->vendorId = 0x0000;
+    props->graphicsProperties.maxSwapchainImageWidth = 1920;
+    props->graphicsProperties.maxSwapchainImageHeight = 1080;
+    props->trackingProperties.orientationTracking = XR_TRUE;
+    props->trackingProperties.positionTracking = XR_TRUE;
 }
 
-static void example_get_display_properties(OxDisplayProperties* props) {
-    // Standard VR headset specs
-    props->display_width = 1920;
-    props->display_height = 1080;
-    props->recommended_width = 1024;
-    props->recommended_height = 1024;
-    props->refresh_rate = 90.0f;
-
-    // ~90 degree FOV
-    props->fov.angleLeft = -0.785398f;  // -45 degrees in radians
-    props->fov.angleRight = 0.785398f;  // +45 degrees
-    props->fov.angleUp = 0.785398f;
-    props->fov.angleDown = -0.785398f;
-}
-
-static void example_get_tracking_capabilities(OxTrackingCapabilities* caps) {
-    caps->has_orientation_tracking = 1;
-    caps->has_position_tracking = 1;
-}
-
-static void example_update_view_pose(XrTime predicted_time, uint32_t eye_index, XrPosef* out_pose) {
+static void example_update_view(XrTime predicted_time, uint32_t eye_index, XrView* out_view) {
     // Get HMD pose from device[0] (the approach drivers should use)
     // For this simple example, we'll just use a fixed pose
-    out_pose->position.x = 0.0f;
-    out_pose->position.y = 1.6f;  // ~1.6m eye height
-    out_pose->position.z = 0.0f;
-    out_pose->orientation.x = 0.0f;
-    out_pose->orientation.y = 0.0f;
-    out_pose->orientation.z = 0.0f;
-    out_pose->orientation.w = 1.0f;
+    out_view->pose.position.x = 0.0f;
+    out_view->pose.position.y = 1.6f;  // ~1.6m eye height
+    out_view->pose.position.z = 0.0f;
+    out_view->pose.orientation.x = 0.0f;
+    out_view->pose.orientation.y = 0.0f;
+    out_view->pose.orientation.z = 0.0f;
+    out_view->pose.orientation.w = 1.0f;
 
     // Apply IPD offset (64mm standard)
     const float ipd_half = 0.032f;  // 32mm per eye
 
     if (eye_index == 0) {
         // Left eye
-        out_pose->position.x -= ipd_half;
+        out_view->pose.position.x -= ipd_half;
     } else {
         // Right eye
-        out_pose->position.x += ipd_half;
+        out_view->pose.position.x += ipd_half;
     }
+
+    // Standard ~90° symmetric FOV
+    out_view->fov = {-0.785398f, 0.785398f, 0.785398f, -0.785398f};
 }
 
 static void example_update_devices(XrTime predicted_time, OxDeviceState* out_states, uint32_t* out_count) {
@@ -128,117 +109,117 @@ static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t
     return count;
 }
 
-static OxComponentResult example_get_input_state_boolean(XrTime predicted_time, const char* user_path,
-                                                         const char* component_path, uint32_t* out_value) {
+static XrResult example_get_input_state_boolean(XrTime predicted_time, const char* user_path,
+                                                const char* component_path, XrBool32* out_value) {
     if (!user_path || !component_path || !out_value) {
-        return OX_COMPONENT_UNAVAILABLE;
+        return XR_ERROR_PATH_UNSUPPORTED;
     }
 
     // Button A (right hand) / X (left hand) - Click
     if (std::strcmp(component_path, "/input/a/click") == 0 || std::strcmp(component_path, "/input/x/click") == 0) {
-        *out_value = 0;  // Not pressed
-        return OX_COMPONENT_AVAILABLE;
+        *out_value = XR_FALSE;
+        return XR_SUCCESS;
     }
 
     // Button B (right hand) / Y (left hand) - Click
     if (std::strcmp(component_path, "/input/b/click") == 0 || std::strcmp(component_path, "/input/y/click") == 0) {
-        *out_value = 1;  // Pressed (for testing)
-        return OX_COMPONENT_AVAILABLE;
+        *out_value = XR_TRUE;  // Pressed (for testing)
+        return XR_SUCCESS;
     }
 
     // Button A/X Touch
     if (std::strcmp(component_path, "/input/a/touch") == 0 || std::strcmp(component_path, "/input/x/touch") == 0) {
-        *out_value = 0;
-        return OX_COMPONENT_AVAILABLE;
+        *out_value = XR_FALSE;
+        return XR_SUCCESS;
     }
 
     // Button B/Y Touch
     if (std::strcmp(component_path, "/input/b/touch") == 0 || std::strcmp(component_path, "/input/y/touch") == 0) {
-        *out_value = 1;  // Touched (for testing)
-        return OX_COMPONENT_AVAILABLE;
+        *out_value = XR_TRUE;  // Touched (for testing)
+        return XR_SUCCESS;
     }
 
     // Trigger click
     if (std::strcmp(component_path, "/input/trigger/click") == 0) {
-        *out_value = 0;
-        return OX_COMPONENT_AVAILABLE;
+        *out_value = XR_FALSE;
+        return XR_SUCCESS;
     }
 
     // Trigger touch
     if (std::strcmp(component_path, "/input/trigger/touch") == 0) {
-        *out_value = 0;
-        return OX_COMPONENT_AVAILABLE;
+        *out_value = XR_FALSE;
+        return XR_SUCCESS;
     }
 
     // Thumbstick click
     if (std::strcmp(component_path, "/input/thumbstick/click") == 0) {
-        *out_value = 0;
-        return OX_COMPONENT_AVAILABLE;
+        *out_value = XR_FALSE;
+        return XR_SUCCESS;
     }
 
     // Thumbstick touch
     if (std::strcmp(component_path, "/input/thumbstick/touch") == 0) {
-        *out_value = 0;
-        return OX_COMPONENT_AVAILABLE;
+        *out_value = XR_FALSE;
+        return XR_SUCCESS;
     }
 
-    return OX_COMPONENT_UNAVAILABLE;
+    return XR_ERROR_PATH_UNSUPPORTED;
 }
 
-static OxComponentResult example_get_input_state_float(XrTime predicted_time, const char* user_path,
-                                                       const char* component_path, float* out_value) {
+static XrResult example_get_input_state_float(XrTime predicted_time, const char* user_path, const char* component_path,
+                                              float* out_value) {
     if (!user_path || !component_path || !out_value) {
-        return OX_COMPONENT_UNAVAILABLE;
+        return XR_ERROR_PATH_UNSUPPORTED;
     }
 
     // Trigger value
     if (std::strcmp(component_path, "/input/trigger/value") == 0) {
         *out_value = 0.5f;  // Half-pressed
-        return OX_COMPONENT_AVAILABLE;
+        return XR_SUCCESS;
     }
 
     // Squeeze/Grip value
     if (std::strcmp(component_path, "/input/squeeze/value") == 0) {
         *out_value = 0.4f;
-        return OX_COMPONENT_AVAILABLE;
+        return XR_SUCCESS;
     }
 
     // Thumbstick x component
     if (std::strcmp(component_path, "/input/thumbstick/x") == 0) {
         *out_value = 0.0f;
-        return OX_COMPONENT_AVAILABLE;
+        return XR_SUCCESS;
     }
 
     // Thumbstick y component
     if (std::strcmp(component_path, "/input/thumbstick/y") == 0) {
         *out_value = 0.0f;
-        return OX_COMPONENT_AVAILABLE;
+        return XR_SUCCESS;
     }
 
-    return OX_COMPONENT_UNAVAILABLE;
+    return XR_ERROR_PATH_UNSUPPORTED;
 }
 
-static OxComponentResult example_get_input_state_vector2f(XrTime predicted_time, const char* user_path,
-                                                          const char* component_path, XrVector2f* out_value) {
+static XrResult example_get_input_state_vector2f(XrTime predicted_time, const char* user_path,
+                                                 const char* component_path, XrVector2f* out_value) {
     if (!user_path || !component_path || !out_value) {
-        return OX_COMPONENT_UNAVAILABLE;
+        return XR_ERROR_PATH_UNSUPPORTED;
     }
 
     // Thumbstick
     if (std::strcmp(component_path, "/input/thumbstick") == 0) {
         out_value->x = 0.0f;
         out_value->y = 0.0f;
-        return OX_COMPONENT_AVAILABLE;
+        return XR_SUCCESS;
     }
 
     // Trackpad
     if (std::strcmp(component_path, "/input/trackpad") == 0) {
         out_value->x = 0.0f;
         out_value->y = 0.0f;
-        return OX_COMPONENT_AVAILABLE;
+        return XR_SUCCESS;
     }
 
-    return OX_COMPONENT_UNAVAILABLE;
+    return XR_ERROR_PATH_UNSUPPORTED;
 }
 
 // Driver registration function - this is the entry point called by the runtime
@@ -251,10 +232,8 @@ extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriverCallbacks* callbacks)
     callbacks->initialize = example_initialize;
     callbacks->shutdown = example_shutdown;
     callbacks->is_device_connected = example_is_device_connected;
-    callbacks->get_device_info = example_get_device_info;
-    callbacks->get_display_properties = example_get_display_properties;
-    callbacks->get_tracking_capabilities = example_get_tracking_capabilities;
-    callbacks->update_view_pose = example_update_view_pose;
+    callbacks->get_system_properties = example_get_system_properties;
+    callbacks->update_view = example_update_view;
     callbacks->update_devices = example_update_devices;
     callbacks->get_input_state_boolean = example_get_input_state_boolean;
     callbacks->get_input_state_float = example_get_input_state_float;
