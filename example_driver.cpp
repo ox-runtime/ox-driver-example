@@ -61,7 +61,7 @@ static void example_update_devices(XrTime predicted_time, OxDeviceState* out_sta
 
     // HMD as device[0] - /user/head
     snprintf(out_states[0].user_path, sizeof(out_states[0].user_path), "%s", "/user/head");
-    out_states[0].is_active = 1;  // HMD is always active
+    out_states[0].is_active = XR_TRUE;  // HMD is always active
     out_states[0].pose.position.x = 0.0f;
     out_states[0].pose.position.y = 1.6f;  // Eye height
     out_states[0].pose.position.z = 0.0f;
@@ -72,7 +72,7 @@ static void example_update_devices(XrTime predicted_time, OxDeviceState* out_sta
 
     // Left controller as device[1]
     snprintf(out_states[1].user_path, sizeof(out_states[1].user_path), "%s", "/user/hand/left");
-    out_states[1].is_active = 1;
+    out_states[1].is_active = XR_TRUE;
     out_states[1].pose.position.x = -0.3f;  // 30cm left
     out_states[1].pose.position.y = 1.2f;   // Waist height
     out_states[1].pose.position.z = -0.2f;  // 20cm forward
@@ -83,7 +83,7 @@ static void example_update_devices(XrTime predicted_time, OxDeviceState* out_sta
 
     // Right controller as device[2]
     snprintf(out_states[2].user_path, sizeof(out_states[2].user_path), "%s", "/user/hand/right");
-    out_states[2].is_active = 1;
+    out_states[2].is_active = XR_TRUE;
     out_states[2].pose.position.x = 0.3f;   // 30cm right
     out_states[2].pose.position.y = 1.2f;   // Waist height
     out_states[2].pose.position.z = -0.2f;  // 20cm forward

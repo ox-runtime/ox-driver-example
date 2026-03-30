@@ -22,7 +22,7 @@ else()
     FetchContent_Declare(
         ox_driver_api
         GIT_REPOSITORY https://github.com/ox-runtime/ox-runtime.git
-        GIT_TAG v0.1.0
+        GIT_TAG v0.2.0
         GIT_SHALLOW TRUE
         GIT_SPARSE_CHECKOUT include
         SOURCE_SUBDIR include
