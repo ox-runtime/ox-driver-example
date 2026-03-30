@@ -19,11 +19,12 @@ cmake -B build
 cmake --build build --config Release
 ```
 
+Your driver will be built inside `build/example_driver`.
+
+### Advanced Usage
 A driver fundamentally only requires `ox_driver.h` (for the driver API) and `openxr.h` (for the data types). These headers are fetched automatically by CMake.
 
 If you want to build against a local `ox-runtime` checkout instead of the remote repository, pass `-DOX_RUNTIME_REPO=/path/to/ox-runtime` when configuring cmake.
-
-3. Your driver will be built inside `build/example_driver`.
 
 ## Installation
 
