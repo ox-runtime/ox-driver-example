@@ -109,8 +109,8 @@ static uint32_t example_get_interaction_profiles(const char** profiles, uint32_t
     return count;
 }
 
-static XrResult example_get_input_state_boolean(XrTime predicted_time, const char* user_path,
-                                                const char* component_path, XrBool32* out_value) {
+static XrResult example_get_input_state_bool(XrTime predicted_time, const char* user_path, const char* component_path,
+                                             XrBool32* out_value) {
     if (!user_path || !component_path || !out_value) {
         return XR_ERROR_PATH_UNSUPPORTED;
     }
@@ -223,22 +223,22 @@ static XrResult example_get_input_state_vector2f(XrTime predicted_time, const ch
 }
 
 // Driver registration function - this is the entry point called by the runtime
-extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriverCallbacks* callbacks) {
-    if (!callbacks) {
+extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriver* driver) {
+    if (!driver) {
         return 0;
     }
 
     // Fill in all callback functions
-    callbacks->initialize = example_initialize;
-    callbacks->shutdown = example_shutdown;
-    callbacks->is_device_connected = example_is_device_connected;
-    callbacks->get_system_properties = example_get_system_properties;
-    callbacks->update_view = example_update_view;
-    callbacks->update_devices = example_update_devices;
-    callbacks->get_input_state_boolean = example_get_input_state_boolean;
-    callbacks->get_input_state_float = example_get_input_state_float;
-    callbacks->get_input_state_vector2f = example_get_input_state_vector2f;
-    callbacks->get_interaction_profiles = example_get_interaction_profiles;
+    driver->initialize = example_initialize;
+    driver->shutdown = example_shutdown;
+    driver->is_device_connected = example_is_device_connected;
+    driver->get_system_properties = example_get_system_properties;
+    driver->update_view = example_update_view;
+    driver->update_devices = example_update_devices;
+    driver->get_input_state_bool = example_get_input_state_bool;
+    driver->get_input_state_float = example_get_input_state_float;
+    driver->get_input_state_vector2f = example_get_input_state_vector2f;
+    driver->get_interaction_profiles = example_get_interaction_profiles;
 
     return 1;
 }
