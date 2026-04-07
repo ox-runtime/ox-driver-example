@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <string>
 
 // Include the driver API
 #include <ox_driver.h>
@@ -222,6 +223,22 @@ static XrResult example_get_input_state_vector2f(XrTime predicted_time, const ch
     return XR_ERROR_PATH_UNSUPPORTED;
 }
 
+static void example_set_config_bool(const char* key, XrBool32 value) {
+    std::printf("example config bool: %s = %s\n", key, value == XR_TRUE ? "true" : "false");
+}
+
+static void example_set_config_string(const char* key, const char* value) {
+    std::printf("example config string: %s = %s\n", key, value ? value : "(null)");
+}
+
+static void example_set_config_int(const char* key, int64_t value) {
+    std::printf("example config int: %s = %lld\n", key, static_cast<long long>(value));
+}
+
+static void example_set_config_float(const char* key, float value) {
+    std::printf("example config float: %s = %f\n", key, value);
+}
+
 // Driver registration function - this is the entry point called by the runtime
 extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriver* driver) {
     if (!driver) {
@@ -231,6 +248,10 @@ extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriver* driver) {
     // Fill in all callback functions
     driver->initialize = example_initialize;
     driver->shutdown = example_shutdown;
+    driver->set_config_bool = example_set_config_bool;
+    driver->set_config_string = example_set_config_string;
+    driver->set_config_int = example_set_config_int;
+    driver->set_config_float = example_set_config_float;
     driver->is_device_connected = example_is_device_connected;
     driver->get_system_properties = example_get_system_properties;
     driver->update_view = example_update_view;
