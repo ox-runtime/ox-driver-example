@@ -1,15 +1,14 @@
 # ox-driver-example
 
-**WORK-IN-PROGRESS** - This is still a prototype and is not (yet) fully compliant with the OpenXR spec.
+An example XR headset driver for the [ox](https://github.com/ox-runtime/ox) OpenXR runtime. You can use it as a starting template for [writing a driver](https://github.com/ox-runtime/ox/blob/main/docs/driver.md) for your headset.
 
-An example implementation of an [ox runtime](https://github.com/ox-runtime/ox) OpenXR headset driver. You can use it as a starting template for writing a driver for your headset.
-
-## Purpose
+## Features
 
 This driver provides a simple fixed-pose headset that:
 - Always reports as "connected"
 - Returns a fixed standing pose at (0, 1.6, 0) meters
 - Provides standard VR headset display properties (1920x1080 per eye, 90Hz)
+- Receives pixel data from the runtime
 - Demonstrates the minimal driver API implementation
 
 ## Building
@@ -21,10 +20,10 @@ cmake --build build --config Release
 
 Your driver will be built inside `build/example_driver`.
 
-### Advanced Usage
-A driver fundamentally only requires `ox_driver.h` (for the driver API) and `openxr.h` (for the data types). These headers are fetched automatically by CMake.
+A driver only requires `ox_driver.h` (for the driver API) and `openxr.h` (for the data types). These headers are fetched automatically by CMake.
 
-If you want to build against a local `ox-runtime` checkout instead of the remote repository, pass `-DOX_RUNTIME_REPO=/path/to/ox-runtime` when configuring cmake.
+### Advanced Usage
+If you want to build against a local [ox-runtime](https://github.com/ox-runtime/ox-runtime) checkout instead of the remote repository (that's fetched automatically), pass `-DOX_RUNTIME_REPO=/path/to/ox-runtime` when configuring cmake.
 
 ## Installation
 
@@ -35,7 +34,7 @@ For example:
 ```
 ox-runtime/
 ├── bin/
-│   ├── ox-service.exe (or ox-service on Linux/Mac)
+│   ├── ox.exe (or ox on Linux/Mac)
 │   └── drivers/
 │       └── example_driver/
 │           └── ox_driver.dll (or libox_driver.so / libox_driver.dylib)

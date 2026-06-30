@@ -239,6 +239,15 @@ static void example_set_config_float(const char* key, float value) {
     std::printf("example config float: %s = %f\n", key, value);
 }
 
+static void example_submit_frame_pixels(XrTime frame_time, uint32_t eye_index, uint32_t width, uint32_t height,
+                                          uint32_t format, const void* pixel_data, uint32_t data_size) {
+    std::printf("example frame pixels received: eye=%u width=%u height=%u format=%u data_size=%u\n",
+        eye_index, width, height, format, data_size);
+
+    (void)frame_time;
+    (void)pixel_data;
+}
+
 // Driver registration function - this is the entry point called by the runtime
 extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriver* driver) {
     if (!driver) {
@@ -260,6 +269,7 @@ extern "C" OX_DRIVER_EXPORT int ox_driver_register(OxDriver* driver) {
     driver->get_input_state_float = example_get_input_state_float;
     driver->get_input_state_vector2f = example_get_input_state_vector2f;
     driver->get_interaction_profiles = example_get_interaction_profiles;
+    driver->submit_frame_pixels = example_submit_frame_pixels;
 
     return 1;
 }
