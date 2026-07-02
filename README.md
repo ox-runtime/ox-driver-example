@@ -22,7 +22,7 @@ Your driver will be built inside `build/example_driver`.
 
 A driver only requires `ox_driver.h` (for the driver API) and `openxr.h` (for the data types). These headers are fetched automatically by CMake.
 
-### Advanced Usage
+### Advanced Build
 If you want to build against a local [ox-runtime](https://github.com/ox-runtime/ox-runtime) checkout instead of the remote repository (that's fetched automatically), pass `-DOX_RUNTIME_REPO=/path/to/ox-runtime` when configuring cmake.
 
 ## Installation
